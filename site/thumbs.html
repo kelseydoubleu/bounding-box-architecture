@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make gallery previews</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#fff;color:#111;max-width:640px;margin:40px auto;padding:0 16px;line-height:1.5}
+  h1{font-size:20px;margin:0 0 6px}
+  p{color:#555;margin:0 0 16px}
+  button{font:inherit;font-weight:600;padding:10px 18px;border:1px solid #111;background:#111;color:#fff;cursor:pointer}
+  button:disabled{opacity:.4;cursor:default}
+  #log{margin-top:18px;font:12px/1.6 ui-monospace,Menlo,monospace;white-space:pre-wrap;color:#333}
+</style>
+</head>
+<body>
+<h1>Make gallery previews</h1>
+<p>One-time tool. Makes a small preview for every archive image that doesn't have one yet, so the gallery loads fast. Safe to run more than once; images that already have a preview are skipped. Keep this tab open until it says done.</p>
+<button id="go">Make previews</button>
+<div id="log"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const EDGE = 900, Q = 0.8;
+const log = t => { document.getElementById('log').textContent += t + '\n'; };
+
+async function existing() {
+  const have = new Set(); let offset = 0;
+  for (;;) {
+    const { data, error } = await sb.storage.from('images').list('thumbs', { limit: 1000, offset });
+    if (error || !data || !data.length) break;
+    data.forEach(f => have.add(f.name)); if (data.length < 1000) break; offset += 1000;
+  }
+  return have;
+}
+function makeThumb(url) {
+  return new Promise((res, rej) => {
+    const im = new Image(); im.crossOrigin = 'anonymous';
+    im.onload = () => {
+      const s = Math.min(1, EDGE / Math.max(im.naturalWidth, im.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.imageSmoothingQuality = 'high';
+      x.drawImage(im, 0, 0, c.width, c.height); c.toBlob(b => b ? res(b) : rej(new Error('encode failed')), 'image/jpeg', Q);
+    };
+    im.onerror = () => rej(new Error('could not load image')); im.src = url;
+  });
+}
+document.getElementById('go').onclick = async () => {
+  const btn = document.getElementById('go'); btn.disabled = true;
+  const { data: rows, error } = await sb.from('contributions').select('image_path');
+  if (error) { log('Could not read the archive: ' + error.message); btn.disabled = false; return; }
+  const have = await existing();
+  const todo = rows.map(r => r.image_path).filter(p => p && !p.startsWith('thumbs/') && !have.has(p));
+  log(`${rows.length} images in the archive, ${rows.length - todo.length} already have previews, ${todo.length} to make.`);
+  let ok = 0, fail = 0;
+  for (const p of todo) {
+    try {
+      const url = sb.storage.from('images').getPublicUrl(p).data.publicUrl;
+      const blob = await makeThumb(url);
+      const up = await sb.storage.from('images').upload('thumbs/' + p, blob, { contentType: 'image/jpeg' });
+      if (up.error && !/exists/i.test(up.error.message)) throw up.error;
+      ok++; log(`made ${ok + fail}/${todo.length}  ${p}  (${Math.round(blob.size / 1024)} KB)`);
+    } catch (e) { fail++; log(`skipped ${p}: ${e.message}`); }
+  }
+  log(`\nDone. ${ok} made, ${fail} skipped.`); btn.disabled = false;
+};
+</script>
+</body>
+</html>
