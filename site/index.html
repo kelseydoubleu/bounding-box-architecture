@@ -121,6 +121,7 @@ body{font-family:'Quicksand',system-ui,sans-serif;color:#fff;background:linear-g
 .consentbox{max-width:460px;margin:0 auto 4px;display:flex;flex-direction:column;gap:10px;align-items:center}
 .consentbox input[type=text]{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;font-family:inherit;font-size:14px;font-weight:600;padding:9px 13px;border-radius:10px}
 .consentbox input[type=text]:focus{outline:none;border-color:#fff}
+.consentbox input[type=text]::placeholder,.namebar input::placeholder,.walkrelabel input::placeholder{color:rgba(255,255,255,.6)}
 .consent{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:rgba(255,255,255,.85);font-weight:500;cursor:pointer;line-height:1.4;text-align:left}
 .consent input{margin-top:2px;width:16px;height:16px;accent-color:#A8FF8E;cursor:pointer;flex-shrink:0}
 .cls-multi{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px;justify-content:center}
@@ -218,11 +219,46 @@ body{font-family:'Quicksand',system-ui,sans-serif;color:#fff;background:linear-g
 .savedto .s{background:#EDE9FB;color:#5B4BC4;border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600}
 @media(max-width:760px){body{overflow:auto;height:auto;min-height:100vh}.main{overflow:visible}.panel{min-height:70vh}}
 @media(max-width:600px){.links{gap:14px;font-size:15px}.sline{width:24px;margin:0 8px}.step .nm{display:none}}
+/* ---------- phone pass ---------- */
+@media(max-width:600px){
+  .nav{padding:12px 16px;align-items:center;gap:12px}
+  .brand{font-size:15px;white-space:nowrap}
+  .links{gap:6px;font-size:14px;white-space:nowrap}
+  .links a{padding:10px 6px}
+  .hide-sm{display:none}
+  .main{padding:4px 16px 16px}
+  .stepper{margin:2px 0 10px}
+  .stephead .h1{font-size:18px}
+  .stephead .h2{font-size:13px;line-height:1.4}
+  .intro .t{font-size:15px}
+  .intro .s{font-size:12.5px;line-height:1.4}
+  /* model picker + tab bars: wrap into a tidy grid instead of running off screen */
+  .modelrow{gap:8px;margin:12px 0 6px}
+  .modelrow .lab{flex-basis:100%;text-align:center}
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:100%;box-sizing:border-box;border-radius:18px}
+  .seg button{padding:9px 4px;min-height:40px;font-size:13px;line-height:1.15;border-radius:14px}
+  .dctrl .seg button{font-size:12.5px}
+  .modelnote{font-size:12px;line-height:1.5}
+  /* bigger slider to grab with a thumb */
+  .confslider{flex:1 1 140px;max-width:220px;height:28px;background:linear-gradient(rgba(255,255,255,.35),rgba(255,255,255,.35)) center/100% 2px no-repeat}
+  .confslider::-webkit-slider-thumb{width:22px;height:22px}
+  .confslider::-moz-range-thumb{width:22px;height:22px}
+  /* tap targets */
+  .walknav button{padding:10px 14px;font-size:13px;min-height:40px}
+  .dseg button{padding:10px 14px;font-size:13px}
+  .dback{min-height:38px}
+  .ib{width:38px;height:38px}
+  .pxtoggle{padding:9px 14px}
+  .consent input{width:20px;height:20px}
+  /* iOS zooms into any text field under 16px; keep them at 16 */
+  input[type=text],input:not([type]),.consentbox input[type=text],.namebar input,.walkrelabel input,#eList .lbl input,#eDrawInput,#eName{font-size:16px}
+  .gcbox .gt{font-size:10px}
+}
 </style>
 </head>
 <body>
 <div class="nav"><div class="brand">bounding box architecture</div>
-  <div class="links"><a id="navDetect" class="on">detect something</a><a id="navData">our data</a></div>
+  <div class="links"><a id="navDetect" class="on">detect<span class="hide-sm"> something</span></a><a id="navData">our data</a></div>
 </div>
 
 <div class="main scrollable" id="pageDetect">
@@ -240,7 +276,7 @@ body{font-family:'Quicksand',system-ui,sans-serif;color:#fff;background:linear-g
       <div class="uz" id="uz"><input type="file" id="file" accept="image/*"><div class="ic">&#8862;</div><div class="l">drop an image or click to choose</div><div class="h">a photo, a rendering, a collage, anything</div></div>
     </div>
     <div id="s1Ready" style="display:none">
-      <div class="stephead"><div class="h1">run a detector</div><div class="h2">pick a base model and let it find objects, or skip and label everything yourself</div></div>
+      <div class="stephead"><div class="h1">run a detector</div><div class="h2">pick a model and let it find what it can</div></div>
       <div class="imgcard"><div class="cvwrap"><canvas id="cv"></canvas></div></div>
       <div class="modelrow"><span class="lab">base model</span><div class="seg" id="detSeg"><button data-det="yolo11n" class="on" title="YOLO11 nano, 2.6M params, fastest">YOLO11n</button><button data-det="yolo11s" title="YOLO11 small, 9.4M params">YOLO11s</button><button data-det="yolo11m" title="YOLO11 medium, 20M params, sharpest, slowest to load">YOLO11m</button><button data-det="yolo12n" title="YOLO12 nano, newer architecture">YOLO12n</button><button data-det="yolo12s" title="YOLO12 small, newer architecture">YOLO12s</button><button data-det="coco-ssd" title="COCO-SSD via TensorFlow.js">COCO-SSD</button></div></div>
       <div class="modelnote">Five YOLO variants (<b>11n/s/m</b>, <b>12n/s</b>) run in your browser via ONNX Runtime (WASM); <b>COCO-SSD</b> runs via TensorFlow.js. The bigger models (11m especially) see more but download slower. Everything runs locally, so your image never leaves your device. It&rsquo;s only added to the shared dataset when you save it. All were trained on <b>COCO</b> (80 everyday classes), so none has a word for &ldquo;building.&rdquo; that blind spot is the point.</div>
@@ -418,7 +454,7 @@ async function createCls(){const inp=$('newClsName'),v=inp.value.trim();if(!v)re
 function toast(t,err){const el=$('toast');el.textContent=t;el.classList.toggle('err',!!err);}
 async function saveAll(){const conf=anns.filter(a=>a.status==='confirmed');const targets=classifiers.filter(c=>c.selected);if(!conf.length||!targets.length)return;if(!$('consentChk').checked){toast('please confirm you have the right to share this image',true);return;}const btn=$('saveBtn');btn.disabled=true;toast('saving\u2026');
   const toSave=anns.filter(a=>a.status==='confirmed'||(a.status==='rejected'&&a.source==='model'));
-  try{await saveContribution({imageDataUrl:imgURL,width:img.naturalWidth,height:img.naturalHeight,baseModel:ranDetection?detId:'none',lensClassifierId:activeLens?activeLens.classifierId:null,lensModelId:activeLens?activeLens.modelId:null,contributorName:$('contribName').value,contributorId:getContributorId(),imageRightsConfirmed:true,annotations:toSave.map(a=>({label:a.label,bbox:a.bbox,source:a.source,detector:a.detector,modelLabel:a.modelLabel,lensLabel:a.lensLabel,conf:a.conf,status:a.status==='rejected'?'rejected':'kept'})),classifierIds:targets.map(t=>t.id)});$('s3Form').style.display='none';$('s3Done').style.display='block';$('stp3').classList.remove('on');$('stp3').classList.add('done');$('doneSub').textContent=`${conf.length} label${conf.length===1?'':'s'} added to the archive`;}catch(e){toast('save failed: '+(e.message||e).toString().slice(0,80),true);btn.disabled=false;}}
+  try{await saveContribution({imageDataUrl:imgURL,thumbDataUrl:thumbURL,width:img.naturalWidth,height:img.naturalHeight,baseModel:ranDetection?detId:'none',lensClassifierId:activeLens?activeLens.classifierId:null,lensModelId:activeLens?activeLens.modelId:null,contributorName:$('contribName').value,contributorId:getContributorId(),imageRightsConfirmed:true,annotations:toSave.map(a=>({label:a.label,bbox:a.bbox,source:a.source,detector:a.detector,modelLabel:a.modelLabel,lensLabel:a.lensLabel,conf:a.conf,status:a.status==='rejected'?'rejected':'kept'})),classifierIds:targets.map(t=>t.id)});$('s3Form').style.display='none';$('s3Done').style.display='block';$('stp3').classList.remove('on');$('stp3').classList.add('done');$('doneSub').textContent=`${conf.length} label${conf.length===1?'':'s'} added to the archive`;}catch(e){toast('save failed: '+(e.message||e).toString().slice(0,80),true);btn.disabled=false;}}
 
 /* ---------- data page ---------- */
 function buildNodes(){dataNodes=[];curItems.forEach(it=>{it.annotations.filter(a=>a.status!=='rejected').forEach(a=>{const cat=catFor(a.label);dataNodes.push({label:a.label,cat,image:it.image,crop:a.bbox,iw:it.width,ih:it.height,contrib:it.contributor,date:it.date});});});}
@@ -439,7 +475,7 @@ function renderGallery(){panel.classList.remove('const');panel.querySelectorAll(
     let boxes='';
     kept.forEach(a=>{const col=a.source==='human'?'#FFFFFF':'#6EF06E';const tcol=a.source==='human'?'#4D40C0':'#0A1F0A';const nearRight=(a.bbox[0]+a.bbox[2])>0.6;const cls='gt'+(nearRight?' right':'');boxes+=`<div class="gcbox" style="left:${a.bbox[0]*100}%;top:${a.bbox[1]*100}%;width:${a.bbox[2]*100}%;height:${a.bbox[3]*100}%;border:2px solid ${col}"><span class="${cls}" style="background:${col};color:${tcol}">${a.label}</span></div>`;});
     const ar=(it.width&&it.height)?(it.width+'/'+it.height):'4/3';
-    h+=`<div class="gcard" data-i="${i}"><div class="gcimg" style="aspect-ratio:${ar}"><img src="${it.image}" alt="" loading="lazy">${boxes}</div><div class="cap"><span>${kept.length} label${kept.length===1?'':'s'}</span><span class="dt">${it.date||''}</span></div></div>`;
+    h+=`<div class="gcard" data-i="${i}"><div class="gcimg" style="aspect-ratio:${ar}"><img src="${it.thumb||it.image}" alt="" loading="lazy" decoding="async" onerror="if(this.src!=='${it.image}'){this.src='${it.image}'}">${boxes}</div><div class="cap"><span>${kept.length} label${kept.length===1?'':'s'}</span><span class="dt">${it.date||''}</span></div></div>`;
   });
   h+='</div></div>';
   panel.insertAdjacentHTML('beforeend',h);
@@ -528,16 +564,20 @@ panel.addEventListener('mouseleave',()=>tip.classList.remove('show'));
 /* ---------- upload / reset ---------- */
 function resetDetect(){pxStopBreath();detCache={};rawDets=[];if($('s1Reveal'))$('s1Reveal').style.display='none';anns=[];img=null;imgURL=null;drawMode=false;walkActive=false;step=1;maxStep=1;ranDetection=false;tempRect=null;pendingBox=null;cv2.style.display='none';cv2.classList.remove('draw');$('s3Form').style.display='block';$('s3Done').style.display='none';$('consentChk').checked=false;$('contribName').value='';$('toast').textContent='';$('s1Upload').style.display='block';$('s1Ready').style.display='none';for(let i=1;i<=3;i++){$('step'+i).style.display=i===1?'block':'none';const s=$('stp'+i);s.classList.toggle('on',i===1);s.classList.remove('done');}$('uz').innerHTML='<input type="file" id="file" accept="image/*"><div class="ic">&#8862;</div><div class="l">drop an image or click to choose</div><div class="h">a photo, a rendering, a collage, anything</div>';bindFile();}
 function bindFile(){$('file').addEventListener('change',e=>loadImg(e.target.files[0]));}
-const MAX_EDGE=2048, JPEG_Q=0.9;
+const MAX_EDGE=2048, JPEG_Q=0.9, THUMB_EDGE=900, THUMB_Q=0.8;
+let thumbURL=null;
 function alertUpload(t){const h=document.querySelector('#uz .h');if(h)h.textContent=t;}
 function compressImage(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const src=new Image();
   src.onload=()=>{URL.revokeObjectURL(u);const W0=src.naturalWidth,H0=src.naturalHeight,sc=Math.min(1,MAX_EDGE/Math.max(W0,H0));
     const c=document.createElement('canvas');c.width=Math.round(W0*sc);c.height=Math.round(H0*sc);const x=c.getContext('2d');
     x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.imageSmoothingQuality='high';x.drawImage(src,0,0,c.width,c.height);
-    res(c.toDataURL('image/jpeg',JPEG_Q));};
+    const full=c.toDataURL('image/jpeg',JPEG_Q);
+    const ts=Math.min(1,THUMB_EDGE/Math.max(c.width,c.height)),t=document.createElement('canvas');t.width=Math.round(c.width*ts);t.height=Math.round(c.height*ts);
+    const tx=t.getContext('2d');tx.imageSmoothingQuality='high';tx.drawImage(c,0,0,t.width,t.height);
+    res({full,thumb:t.toDataURL('image/jpeg',THUMB_Q)});};
   src.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('could not read that image. try a JPG or PNG.'));};src.src=u;});}
 async function loadImg(file){if(!file)return;let data;
-  try{data=await compressImage(file);}catch(e){alertUpload(e.message);return;}
+  try{const r=await compressImage(file);data=r.full;thumbURL=r.thumb;}catch(e){alertUpload(e.message);return;}
   const im=new Image();im.onload=()=>{img=im;imgURL=data;anns=[];drawMode=false;tempRect=null;pendingBox=null;$('s1Upload').style.display='none';$('s1Ready').style.display='block';fitBoth();paint(cv);buildLensRow();s1Hint('');};im.src=data;}
 
 /* ---------- wire up ---------- */
