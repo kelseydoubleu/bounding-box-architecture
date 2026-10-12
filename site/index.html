@@ -528,7 +528,7 @@ panel.addEventListener('mouseleave',()=>tip.classList.remove('show'));
 /* ---------- upload / reset ---------- */
 function resetDetect(){pxStopBreath();detCache={};rawDets=[];if($('s1Reveal'))$('s1Reveal').style.display='none';anns=[];img=null;imgURL=null;drawMode=false;walkActive=false;step=1;maxStep=1;ranDetection=false;tempRect=null;pendingBox=null;cv2.style.display='none';cv2.classList.remove('draw');$('s3Form').style.display='block';$('s3Done').style.display='none';$('consentChk').checked=false;$('contribName').value='';$('toast').textContent='';$('s1Upload').style.display='block';$('s1Ready').style.display='none';for(let i=1;i<=3;i++){$('step'+i).style.display=i===1?'block':'none';const s=$('stp'+i);s.classList.toggle('on',i===1);s.classList.remove('done');}$('uz').innerHTML='<input type="file" id="file" accept="image/*"><div class="ic">&#8862;</div><div class="l">drop an image or click to choose</div><div class="h">a photo, a rendering, a collage, anything</div>';bindFile();}
 function bindFile(){$('file').addEventListener('change',e=>loadImg(e.target.files[0]));}
-const MAX_EDGE=1600, JPEG_Q=0.82;
+const MAX_EDGE=2048, JPEG_Q=0.9;
 function alertUpload(t){const h=document.querySelector('#uz .h');if(h)h.textContent=t;}
 function compressImage(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const src=new Image();
   src.onload=()=>{URL.revokeObjectURL(u);const W0=src.naturalWidth,H0=src.naturalHeight,sc=Math.min(1,MAX_EDGE/Math.max(W0,H0));
