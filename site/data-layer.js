@@ -1,6 +1,5 @@
 // data-layer.js
 // Real Supabase persistence for Bounding Box Architecture. Matches data-shape-spec.md.
-// Import these into your site and call them where DEPLOY.md indicates.
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
@@ -68,6 +67,7 @@ export async function loadClassifierItems(classifierId) {
     id: c.id,
     imagePath: c.image_path,
     image: imgUrl(c.image_path),
+    thumb: imgUrl('thumbs/' + c.image_path),
     width: c.width,
     height: c.height,
     baseModel: c.base_model,
@@ -113,6 +113,7 @@ export async function loadAllItems() {
     id: c.id,
     imagePath: c.image_path,
     image: imgUrl(c.image_path),
+    thumb: imgUrl('thumbs/' + c.image_path),
     width: c.width,
     height: c.height,
     baseModel: c.base_model,
@@ -146,7 +147,7 @@ export async function loadAllItems() {
 // ---- save one image + its confirmed labels to one or more classifiers ----
 // Requires consent. annotations: [{ label, bbox, source, detector, modelLabel, lensLabel, conf }]
 export async function saveContribution({
-  imageDataUrl, width, height, baseModel = 'none',
+  imageDataUrl, thumbDataUrl = null, width, height, baseModel = 'none',
   lensClassifierId = null, lensModelId = null,
   contributorName, contributorId, imageRightsConfirmed,
   caption = null, annotations, classifierIds
@@ -161,6 +162,14 @@ export async function saveContribution({
   const path = `${crypto.randomUUID()}.${ext}`;
   const up = await sb.storage.from('images').upload(path, blob, { contentType: blob.type });
   if (up.error) throw up.error;
+
+  // 1b. small preview for the gallery (best effort; the gallery falls back to the full image)
+  if (thumbDataUrl) {
+    try {
+      const tb = await (await fetch(thumbDataUrl)).blob();
+      await sb.storage.from('images').upload('thumbs/' + path, tb, { contentType: tb.type });
+    } catch (e) { console.warn('thumbnail upload failed', e); }
+  }
 
   // 2. insert the contribution
   const { data: contrib, error: e1 } = await sb
@@ -235,7 +244,7 @@ export async function updateContribution({ contributionId, annotations, editedBy
 
 // ---- delete an entire contribution (image + all its labels + classifier links) ----
 export async function deleteContribution(contributionId, imagePath) {
-  if (imagePath) { try { await sb.storage.from('images').remove([imagePath]); } catch (e) {} }
+  if (imagePath) { try { await sb.storage.from('images').remove([imagePath, 'thumbs/' + imagePath]); } catch (e) {} }
   // annotations + classifier_items cascade via FK on delete
   const { error } = await sb.from('contributions').delete().eq('id', contributionId);
   if (error) throw error;
