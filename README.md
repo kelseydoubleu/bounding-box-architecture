@@ -23,7 +23,7 @@ docs/        documentation and the data spec
 ## How it works
 
 - Detection runs entirely in the browser with ONNX Runtime Web. Images only leave the device when someone saves them.
-- Images are resized to 1600px and saved as JPEG before upload.
+- Images are resized to 2048px and saved as JPEG before upload.
 - Saved images and labels live in Supabase (Postgres + storage).
 - The site is static, so it embeds in the Cargo site as an iframe.
 
