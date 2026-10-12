@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6B5FE0"/>
+      <stop offset="1" stop-color="#4338BC"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#g)"/>
+  <!-- pixel noise: what the model can't see -->
+  <g fill="#ffffff">
+    <rect x="5" y="38" width="8" height="8" opacity=".2"/>
+    <rect x="5" y="46" width="8" height="8" opacity=".36"/>
+    <rect x="52" y="9" width="7" height="7" opacity=".32"/>
+    <rect x="52" y="16" width="7" height="7" opacity=".16"/>
+    <rect x="52" y="45" width="7" height="7" opacity=".24"/>
+  </g>
+  <!-- the bounding box -->
+  <rect x="18" y="16" width="30" height="34" fill="none" stroke="#6EF06E" stroke-width="4.5"/>
+  <rect x="15.75" y="11" width="19" height="9" fill="#6EF06E"/>
+</svg>
