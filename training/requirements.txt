@@ -1,0 +1,5 @@
+supabase
+torch
+torchvision
+pillow
+onnx
