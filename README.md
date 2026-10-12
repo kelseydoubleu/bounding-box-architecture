@@ -2,7 +2,7 @@
 
 A machine vision probe for architectural images. Upload an image, run it through object detection models, and see what they recognize and what they can't. Everything the model has no word for dissolves into noise. People label what it missed, and those labels build a shared archive.
 
-Live: https://boundingboxarch.netlify.app
+Live: https://boundingboxarchitecture.site/
 
 A research project with Amelyn Ng, Columbia GSAPP.
 
